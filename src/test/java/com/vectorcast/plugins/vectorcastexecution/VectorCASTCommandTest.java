@@ -26,33 +26,26 @@ package com.vectorcast.plugins.vectorcastexecution;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.model.Result;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class VectorCASTCommandTest {
-    @ClassRule
-    public static JenkinsRule jenkins = new JenkinsRule();
-    
-    @Test
-    public void testOnWindows() throws Exception {
-        // Only applies on Windows
-        if (System.getProperty("os.name").toLowerCase().indexOf("win") >= 0) {
-            FreeStyleProject project = jenkins.createFreeStyleProject();
-            project.getBuildersList().add(new VectorCASTCommand("echo \"Windows Command\"", "Unix Command"));
-            FreeStyleBuild build = project.scheduleBuild2(0).get();
-            jenkins.assertBuildStatus(Result.SUCCESS, build);
-        }
+@WithJenkins
+class VectorCASTCommandTest {
+
+    private JenkinsRule j;
+
+    @BeforeEach
+    void beforeEach(JenkinsRule rule) {
+        j = rule;
     }
-    
+
     @Test
-    public void testOnLinux() throws Exception {
-        // Only applies on Windows
-        if (System.getProperty("os.name").toLowerCase().indexOf("win") == -1) {
-            FreeStyleProject project = jenkins.createFreeStyleProject();
-            project.getBuildersList().add(new VectorCASTCommand("Windows Command", "echo \"Unix Command\""));
-            FreeStyleBuild build = project.scheduleBuild2(0).get();
-            jenkins.assertBuildStatus(Result.SUCCESS, build);
-        }
+    void test() throws Exception {
+        FreeStyleProject project = j.createFreeStyleProject();
+        project.getBuildersList().add(new VectorCASTCommand("echo \"Windows Command\"", "echo \"Unix Command\""));
+        FreeStyleBuild build = project.scheduleBuild2(0).get();
+        j.assertBuildStatus(Result.SUCCESS, build);
     }
 }
